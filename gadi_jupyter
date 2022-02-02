@@ -231,15 +231,15 @@ EOQ
 # Required for conda
 storage="gdata/hh5"
 
+for p in \$(id -nG); do
+    if [ \$p = "access.dev" ]; then continue; fi
+    if [ \$p = "access.admin" ]; then continue; fi
+    if [ -d "/scratch/\$p" ]; then storage="scratch/\$p+\$storage"; fi
+    if [ -d "/g/data/\$p" ]; then storage="gdata/\$p+\$storage"; fi
+done
+
 if [ -n "$STORAGE" ]; then
     storage="$STORAGE+\$storage"
-else
-    for p in \$(id -nG); do
-        if [ \$p = "access.dev" ]; then continue; fi
-        if [ \$p = "access.admin" ]; then continue; fi
-        if [ -d "/scratch/\$p" ]; then storage="scratch/\$p+\$storage"; fi
-        if [ -d "/g/data/\$p" ]; then storage="gdata/\$p+\$storage"; fi
-    done
 fi
 
 qsub $SUBMITOPTS -W umask=0022 -l "storage=\$storage" -j oe -o "\$WORKDIR/pbs.log" "\$WORKDIR/runjp.sh" > "\$WORKDIR/jobid"
